@@ -1,45 +1,33 @@
 from flask import Blueprint, abort, make_response, request, Response
+import requests
 from app.models.task import Task
-from .route_utilities import validate_model
+from .route_utilities import validate_model, create_model, get_models_with_filters, send_slack_complete
 from ..db import db
 import datetime
+import os
 
 bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 @bp.post("")
 def create_task():
     request_body = request.get_json()
+    new_task = create_model(Task, request_body)
+    # try:
+    #     new_task = Task.from_dict(request_body)
+    # except KeyError:
+    #     response_body = {"details": "Invalid data"}
+    #     abort(make_response(response_body, 400))
 
-    try:
-        new_task = Task.from_dict(request_body)
-    except KeyError:
-        response_body = {"details": "Invalid data"}
-        abort(make_response(response_body, 400))
+    # db.session.add(new_task)
+    # db.session.commit()
 
-    db.session.add(new_task)
-    db.session.commit()
-
-    response = new_task.to_dict()
-    return response, 201
+    return new_task.to_dict(), 201
 
 @bp.get("")
 def get_all_tasks():
-    query = db.select(Task)
-    sort_by = request.args.get("sort")
-    if sort_by == 'asc':
-        query = query.order_by(Task.title.asc())
-    elif sort_by == 'desc':
-        query = query.order_by(Task.title.desc())
-    else:
-        query = query.order_by(Task.id)
+    params = request.args
 
-    tasks = db.session.scalars(query)
-    response_body = []
-
-    for task in tasks:
-        response_body.append(task.to_dict())
-
-    return response_body
+    return get_models_with_filters(Task, params)
 
 @bp.get("<task_id>")
 def get_one_task(task_id):
@@ -74,7 +62,9 @@ def mark_complete(task_id):
     task.completed_at = date
 
     db.session.commit()
-
+    
+    send_slack_complete(Task, task)
+    
     return Response(status=204, mimetype="application/json")
 
 @bp.patch("<task_id>/mark_incomplete")
