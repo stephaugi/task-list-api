@@ -1,27 +1,15 @@
-from flask import Blueprint, abort, make_response, request, Response
-import requests
+from flask import Blueprint, request, Response
 from app.models.task import Task
 from .route_utilities import validate_model, create_model, get_models_with_filters, send_slack_complete
 from ..db import db
-import datetime
-import os
+from datetime import datetime
 
 bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 @bp.post("")
 def create_task():
     request_body = request.get_json()
-    new_task = create_model(Task, request_body)
-    # try:
-    #     new_task = Task.from_dict(request_body)
-    # except KeyError:
-    #     response_body = {"details": "Invalid data"}
-    #     abort(make_response(response_body, 400))
-
-    # db.session.add(new_task)
-    # db.session.commit()
-
-    return new_task.to_dict(), 201
+    return create_model(Task, request_body)
 
 @bp.get("")
 def get_all_tasks():
@@ -38,6 +26,7 @@ def get_one_task(task_id):
 @bp.delete("<task_id>")
 def delete_task(task_id):
     task = validate_model(Task, task_id)
+
     db.session.delete(task)
     db.session.commit()
 
@@ -46,9 +35,12 @@ def delete_task(task_id):
 @bp.put("<task_id>")
 def update_task(task_id):
     request_body = request.get_json()
+
     task = validate_model(Task, task_id)
-    task.title = request_body["title"]
-    task.description = request_body["description"]
+    valid_attrs = ["title", "description"]
+    for attr in valid_attrs:
+        if attr in request_body:
+            setattr(task, attr, request_body[attr])
     
     db.session.commit()
 
@@ -58,7 +50,7 @@ def update_task(task_id):
 def mark_complete(task_id):
     task = validate_model(Task, task_id)
     
-    date = datetime.datetime.now()
+    date = datetime.now()
     task.completed_at = date
 
     db.session.commit()
@@ -76,4 +68,3 @@ def mark_incomplete(task_id):
     db.session.commit()
 
     return Response(status=204, mimetype="application/json")
-

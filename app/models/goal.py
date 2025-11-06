@@ -11,12 +11,8 @@ class Goal(db.Model):
     def to_dict(self):
         response_dict = {
             "id": self.id,
-            "title": self.title,
+            "title": self.title
         }
-        
-        if self.tasks:
-            response_dict["tasks"] = self.tasks
-            
         return response_dict
 
     @classmethod

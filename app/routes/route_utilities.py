@@ -31,7 +31,7 @@ def create_model(cls, model_data):
     db.session.add(new_model)
     db.session.commit()
 
-    return new_model
+    return new_model.to_dict(), 201
 
 def get_models_with_filters(cls, filters=None):
     query = db.select(cls)

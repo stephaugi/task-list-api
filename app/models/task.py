@@ -20,6 +20,8 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": False if not self.completed_at else True
         }
+        if self.goal_id:
+            response_dict["goal_id"] = self.goal_id
         
         return response_dict
 
@@ -27,6 +29,8 @@ class Task(db.Model):
     def from_dict(cls, task_data):
         params = ["title","description"]
         kwarg_dict = {param:task_data[param] for param in params}
+        if "goal_id" in task_data:
+            kwarg_dict["goal_id"] = task_data["goal_id"]
 
         return cls(**kwarg_dict)
 
