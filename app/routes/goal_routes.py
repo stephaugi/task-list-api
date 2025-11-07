@@ -70,9 +70,7 @@ def delete_goal(goal_id):
     return delete_model(Goal, goal_id)
 
 def remove_all_task_ids(goal):
-    query = db.select(Task).where(Task.goal_id==goal.id)
-    current_tasks = db.session.scalars(query)
-    for task in current_tasks:
+    for task in goal.tasks:
         task.goal_id = None
     
     db.session.flush()
