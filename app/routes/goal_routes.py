@@ -66,9 +66,8 @@ def update_goal(goal_id):
 
 @bp.delete("<goal_id>")
 def delete_goal(goal_id):
-    delete_model(Goal, goal_id)
-
-    return Response(status=204, mimetype="application/json")
+    
+    return delete_model(Goal, goal_id)
 
 def remove_all_task_ids(goal):
     query = db.select(Task).where(Task.goal_id==goal.id)

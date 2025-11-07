@@ -25,9 +25,8 @@ def get_one_task(task_id):
 
 @bp.delete("<task_id>")
 def delete_task(task_id):
-    delete_model(Task, task_id)
 
-    return Response(status=204, mimetype="application/json")
+    return delete_model(Task, task_id)
 
 @bp.put("<task_id>")
 def update_task(task_id):

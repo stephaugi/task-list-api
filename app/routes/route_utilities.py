@@ -1,4 +1,4 @@
-from flask import abort, make_response
+from flask import abort, make_response, Response
 from ..db import db
 import requests
 import os
@@ -56,7 +56,7 @@ def delete_model(cls, id):
     db.session.delete(model)
     db.session.commit()
 
-    return True
+    return Response(status=204, mimetype="application/json")
 
 def send_slack_complete(cls, model):
     json = {
