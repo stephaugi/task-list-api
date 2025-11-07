@@ -49,9 +49,7 @@ def get_one_goal_with_tasks(goal_id):
     response["tasks"] = []
 
     if goal.tasks:
-        for task in goal.tasks:
-
-            response["tasks"].append(task.to_dict())
+        response["tasks"] = [task.to_dict() for task in goal.tasks]
 
     return response, 200
 
