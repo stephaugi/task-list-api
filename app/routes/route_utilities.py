@@ -1,7 +1,5 @@
 from flask import abort, make_response
 from ..db import db
-from app.models.goal import Goal
-from app.models.task import Task
 import requests
 import os
 
@@ -24,7 +22,7 @@ def validate_model(cls, id):
 def create_model(cls, model_data):
     try:
         new_model = cls.from_dict(model_data)
-    except KeyError as error:
+    except KeyError:
         response_body = {"details": "Invalid data"}
         abort(make_response(response_body, 400))
 
@@ -53,12 +51,12 @@ def get_models_with_filters(cls, filters=None):
 
     return [model.to_dict() for model in models]
 
-# def delete_model(cls, id):
-#     model = validate_model(cls, id)
-#     db.session.delete(model)
-#     db.session.commit()
+def delete_model(cls, id):
+    model = validate_model(cls, id)
+    db.session.delete(model)
+    db.session.commit()
 
-#     return True
+    return True
 
 def send_slack_complete(cls, model):
     json = {

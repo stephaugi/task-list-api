@@ -1,6 +1,6 @@
 from flask import Blueprint, request, Response
 from app.models.task import Task
-from .route_utilities import validate_model, create_model, get_models_with_filters, send_slack_complete
+from .route_utilities import validate_model, create_model, get_models_with_filters, send_slack_complete, delete_model
 from ..db import db
 from datetime import datetime
 
@@ -25,10 +25,7 @@ def get_one_task(task_id):
 
 @bp.delete("<task_id>")
 def delete_task(task_id):
-    task = validate_model(Task, task_id)
-
-    db.session.delete(task)
-    db.session.commit()
+    delete_model(Task, task_id)
 
     return Response(status=204, mimetype="application/json")
 

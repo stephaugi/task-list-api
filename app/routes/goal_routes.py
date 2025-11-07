@@ -2,7 +2,7 @@ from flask import Blueprint, request, Response
 from ..db import db
 from app.models.goal import Goal
 from app.models.task import Task
-from .task_routes import validate_model, create_model, get_models_with_filters
+from .route_utilities import validate_model, create_model, get_models_with_filters, delete_model
 
 bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
@@ -68,10 +68,7 @@ def update_goal(goal_id):
 
 @bp.delete("<goal_id>")
 def delete_goal(goal_id):
-    goal = validate_model(Goal, goal_id)
-
-    db.session.delete(goal)
-    db.session.commit()
+    delete_model(Goal, goal_id)
 
     return Response(status=204, mimetype="application/json")
 
